@@ -76,25 +76,19 @@ def preprocess(sentence):
     return [entry.lower() for entry in tokens if test.match(entry)]
 
 
+
 def np_chunk(tree):
     """
     Return a list of all noun phrase chunks in the sentence tree.
-    A noun phrase chunk is defined as any subtree of the sentence
-    whose label is "NP" that does not itself contain any other
-    noun phrases as subtrees.
+    A noun phrase chunk is defined as an NP subtree that does not
+    itself contain any other NP subtrees.
     """
-
     chunks = []
-
-    # Convert Tree to Parented Tree
-    ptree = nltk.tree.ParentedTree.convert(tree)
-
-    # Iterate through all subtrees in the tree:
-    for subtree in ptree.subtrees():
-        # If subtree is labelled as a noun then parent is a noun phrase chunk
-        if subtree.label() == "N":
-            chunks.append(subtree.parent())
-
+    for subtree in tree.subtrees():
+        if subtree.label() == "NP":
+            # Check if this NP contains any other NP inside it
+            if not any(child.label() == "NP" for child in subtree.subtrees(lambda t: t != subtree)):
+                chunks.append(subtree)
     return chunks
 
 
